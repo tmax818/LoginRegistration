@@ -49,13 +49,26 @@
                     <form:errors path="confirm"/>
                     </div>
                 </div>
-
                 <input type="submit" value="register">
-
             </form:form>
         </div>
         <div class="col">
             <h2>Login</h2>
+            <div class="form-group">
+                <form:form action="/login" method="post" modelAttribute="newLogin">
+                    <div class="form-group">
+                        <form:label path="email">email</form:label>
+                        <form:input  class="form-control" path="email"/>
+                        <form:errors path="email"/>
+                    </div>
+                    <div>
+                        <form:label path="password">password</form:label>
+                        <form:input  class="form-control" path="password"/>
+                        <form:errors path="password"/>
+                    </div>
+                <input type="submit" value="login">
+                </form:form>
+            </div>
         </div>
 
     </div>

@@ -21,7 +21,7 @@
     <title>LoginReg</title>
 </head>
 <body>
-<h3>Welcome,</h3>
+<h3>Welcome, ${user.userName}</h3>
 <p>This is your dashboard. Nothing to see here yet.</p>
 <p><a href="/logout">logout</a></p>
 </body>
