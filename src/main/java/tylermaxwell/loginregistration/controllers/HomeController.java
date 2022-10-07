@@ -1,6 +1,5 @@
 package tylermaxwell.loginregistration.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,8 +16,12 @@ import javax.validation.Valid;
 @Controller
 public class HomeController {
 
-    @Autowired
-    private UserService userServ;
+    private final UserService userService;
+
+    public HomeController(UserService userService) {
+        this.userService = userService;
+    }
+
 
     @GetMapping("/")
     public String index(Model model){
@@ -32,13 +35,11 @@ public class HomeController {
     @PostMapping("/register")
     public String register(@Valid @ModelAttribute("newUser") User newUser, BindingResult result, Model model, HttpSession session){
 
-        User user = userServ.register(newUser, result);
-        System.out.println(user);
+        User user = userService.register(newUser, result);
         if(result.hasErrors()){
             model.addAttribute("newLogin", new LoginUser());
             return "index.jsp";
         }
-
         session.setAttribute("userId", user.getId());
         System.out.println(session);
 
@@ -49,7 +50,7 @@ public class HomeController {
     @PostMapping("/login")
     public String login(@Valid @ModelAttribute("newLogin") LoginUser newLogin, BindingResult result, Model model, HttpSession session) {
 
-        User user = userServ.login(newLogin, result);
+        User user = userService.login(newLogin, result);
 
         if(result.hasErrors() || user==null) {
             model.addAttribute("newUser", new User());
@@ -64,14 +65,14 @@ public class HomeController {
     @GetMapping("/welcome")
     public String welcome(HttpSession session, Model model) {
         System.out.println(session.getAttribute("userId"));
-        // If no userId is found, redirect to logout
+        // If no userId is found, redirect to log out
         if(session.getAttribute("userId") == null) {
             return "redirect:/logout";
         }
 
         // We get the userId from our session (we need to cast the result to a Long as the 'session.getAttribute("userId")' returns an object
         Long userId = (Long) session.getAttribute("userId");
-        model.addAttribute("user", userServ.findById(userId));
+        model.addAttribute("user", userService.findById(userId));
 
         return "welcome.jsp";
 

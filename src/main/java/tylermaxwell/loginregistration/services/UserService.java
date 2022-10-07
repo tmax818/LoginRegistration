@@ -3,23 +3,27 @@ package tylermaxwell.loginregistration.services;
 import java.util.Optional;
 
 import org.mindrot.jbcrypt.BCrypt;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import tylermaxwell.loginregistration.models.LoginUser;
 import tylermaxwell.loginregistration.models.User;
 import tylermaxwell.loginregistration.repositories.UserRepository;
 
+import javax.validation.Valid;
+
 
 @Service
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepo;
+    private final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public User register(User newUser, BindingResult result) {
 
-        Optional<User> potentialUser = userRepo.findByEmail(newUser.getEmail());
+        Optional<User> potentialUser = userRepository.findByEmail(newUser.getEmail());
 
         // Reject if email is taken (present in database)
         if(potentialUser.isPresent()) {
@@ -35,17 +39,17 @@ public class UserService {
         if(result.hasErrors()) {
             return null;
         }
-
-        // Hash and set password, save user to database
+        // hash password
         String hashed = BCrypt.hashpw(newUser.getPassword(), BCrypt.gensalt());
+        // set password
         newUser.setPassword(hashed);
-        return userRepo.save(newUser);
-
+        // save user to database
+        return userRepository.save(newUser);
     }
 
-    public User login(LoginUser newLogin, BindingResult result) {
+    public User login(@Valid LoginUser newLogin, BindingResult result) {
 
-        Optional<User> potentialUser = userRepo.findByEmail(newLogin.getEmail());
+        Optional<User> potentialUser = userRepository.findByEmail(newLogin.getEmail());
 
         // Find user in the DB by email
         // Reject if NOT present
@@ -61,18 +65,16 @@ public class UserService {
         if(!BCrypt.checkpw(newLogin.getPassword(), user.getPassword())) {
             result.rejectValue("password", "Matches", "Invalid Password!");
         }
-
         // Return null if result has errors
         if(result.hasErrors()) {
             return null;
         }
-
         // Otherwise, return the user object
         return user;
     }
 
-    public User findById(Long id) {
-        Optional<User> potentialUser = userRepo.findById(id);
+    public Object findById(Long id) {
+        Optional<User> potentialUser = userRepository.findById(id);
         if(potentialUser.isPresent()) {
             return potentialUser.get();
         }

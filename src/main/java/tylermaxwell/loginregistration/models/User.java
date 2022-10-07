@@ -31,7 +31,7 @@ public class User {
 
     public User(){}
 
-    // TODO generate getters and setters
+    //TODO generate getters and setters
 
     public Long getId() {
         return id;
