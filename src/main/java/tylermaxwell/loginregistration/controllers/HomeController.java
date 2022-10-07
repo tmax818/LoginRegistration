@@ -27,21 +27,12 @@ public class HomeController {
     public String index(Model model){
 
         // Bind empty User and LoginUser objects to capture form input
-        model.addAttribute("newUser", new User());
-        model.addAttribute("newLogin", new LoginUser());
         return "index.jsp";
     }
 
     @PostMapping("/register")
     public String register(@Valid @ModelAttribute("newUser") User newUser, BindingResult result, Model model, HttpSession session){
 
-        User user = userService.register(newUser, result);
-        if(result.hasErrors()){
-            model.addAttribute("newLogin", new LoginUser());
-            return "index.jsp";
-        }
-        session.setAttribute("userId", user.getId());
-        System.out.println(session);
 
 
         return "redirect:/welcome";
@@ -50,14 +41,6 @@ public class HomeController {
     @PostMapping("/login")
     public String login(@Valid @ModelAttribute("newLogin") LoginUser newLogin, BindingResult result, Model model, HttpSession session) {
 
-        User user = userService.login(newLogin, result);
-
-        if(result.hasErrors() || user==null) {
-            model.addAttribute("newUser", new User());
-            return "index.jsp";
-        }
-
-        session.setAttribute("userId", user.getId());
 
         return "redirect:/welcome";
     }
@@ -66,13 +49,9 @@ public class HomeController {
     public String welcome(HttpSession session, Model model) {
         System.out.println(session.getAttribute("userId"));
         // If no userId is found, redirect to log out
-        if(session.getAttribute("userId") == null) {
-            return "redirect:/logout";
-        }
 
         // We get the userId from our session (we need to cast the result to a Long as the 'session.getAttribute("userId")' returns an object
-        Long userId = (Long) session.getAttribute("userId");
-        model.addAttribute("user", userService.findById(userId));
+
 
         return "welcome.jsp";
 
@@ -81,9 +60,9 @@ public class HomeController {
     @GetMapping("/logout")
     public String logout(HttpSession session) {
 
-        // Set userId to null and redirect to login/register page
-        session.setAttribute("userId", null);
+        // Set userId to null
 
+        // redirect to login/register page
         return "redirect:/";
     }
 }
