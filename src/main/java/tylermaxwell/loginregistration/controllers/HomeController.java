@@ -31,20 +31,40 @@ public class HomeController {
     }
 
     @PostMapping("/register")
-    public String register(@Valid @ModelAttribute("newUser") User newUser, BindingResult result, Model model, HttpSession session){
+    public String register(@Valid @ModelAttribute("reg") User user, BindingResult result, Model model, HttpSession session){
+        // register a new user via the service
+        User userToRegister = userService.register(user, result);
+        if(result.hasErrors()){
+            model.addAttribute("login", new LoginUser());
+            return "index.jsp";
+        }
+        session.setAttribute("userId", user.getId());
         return "redirect:/welcome";
     }
 
     @PostMapping("/login")
-    public String login(@Valid @ModelAttribute("newLogin") LoginUser newLogin, BindingResult result, Model model, HttpSession session) {
+    public String login(@Valid @ModelAttribute("login") LoginUser loginUser, BindingResult result, Model model, HttpSession session) {
+        // login a new user via the service
+        User userToLogin = userService.login(loginUser, result);
+        if(result.hasErrors() || userToLogin==null){
+            model.addAttribute("reg", new User());
+            return "index.jsp";
+        }
+        // add user id to session
+        session.setAttribute("userId", userToLogin.getId());
         return "redirect:/welcome";
     }
 
     @GetMapping("/welcome")
     public String welcome(HttpSession session, Model model) {
-        System.out.println(session.getAttribute("userId"));
         // If no userId is found, redirect to log out
-        // We get the userId from our session (we need to cast the result to a Long as the 'session.getAttribute("userId")' returns an object
+        if(session.getAttribute("userId") == null){
+            return "redirect:/logout";
+        }
+        // We get the userId from session and cast as Long
+        Long userId = (Long) session.getAttribute("userId");
+        // add user retrieved via the service to our model
+        model.addAttribute("user", userService.findById(userId));
         return "welcome.jsp";
 
     }
@@ -52,7 +72,8 @@ public class HomeController {
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         // Set userId to null
-        // redirect to login/register page
+        session.setAttribute("userId", null);
+        // redirect to log in/register page
         return "redirect:/";
     }
 }
