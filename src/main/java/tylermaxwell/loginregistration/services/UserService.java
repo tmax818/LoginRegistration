@@ -23,41 +23,26 @@ public class UserService {
 
     public User register(User newUser, BindingResult result) {
         // Create optional user
-
-
         // Reject if email is taken (present in database)
-
-
         // Reject if password doesn't match confirmation
-
-
         // Return null if result has errors
-
-
         // hash password
-
         // set password
-
         // save user to database
+        return null;
 
     }
 
     public User login(@Valid LoginUser newLogin, BindingResult result) {
         // Create potential user
-
-
         // Find user in the DB by email
         // Reject if NOT present
-
-
         // User exists, retrieve user from DB
-
-
         // Reject if BCrypt password match fails
-
         // Return null if result has errors
-
+        return null;
         // Otherwise, return the user object
+
 
     }
 
